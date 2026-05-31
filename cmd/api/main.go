@@ -26,11 +26,15 @@ func main() {
 	log.Println("Database connected!", db)
 
 	deptRepo := repository.NewDepartmentRepository(db)
+	empRepo := repository.NewEmployeeRepository(db)
 	deptService := service.NewDepartmentService(deptRepo)
+	empService := service.NewEmployeeService(empRepo, deptRepo)
 	deptHandler := handler.NewDepartmentHandler(deptService)
+	empHandler := handler.NewEmployeeHandler(empService)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /departments/", deptHandler.CreateDepartment)
+	mux.HandleFunc("POST /departments/{id}/employees/", empHandler.CreateEmployee)
 
 	log.Println("Server started on :8080")
 	log.Fatal(http.ListenAndServe(":8080", mux))
