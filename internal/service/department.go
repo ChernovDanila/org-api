@@ -93,3 +93,25 @@ func (s *DepartmentService) Update(id int, name *string, parentID *int) (*model.
 
 	return dept, nil
 }
+
+func (s *DepartmentService) Delete(id, reassignToID int, mode string) error {
+	_, err := s.repo.GetByID(id)
+	if err != nil {
+		return errors.New("department not found")
+	}
+
+	if mode == "reassign" {
+		if reassignToID == 0 {
+			return errors.New("reassign_to_department_id is required")
+		}
+		_, err := s.repo.GetByID(reassignToID)
+		if err != nil {
+			return errors.New("reassign target department not found")
+		}
+		if err := s.repo.ReassignEmployees(id, reassignToID); err != nil {
+			return err
+		}
+	}
+
+	return s.repo.Delete(id)
+}

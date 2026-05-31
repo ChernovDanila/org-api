@@ -98,3 +98,34 @@ func (h *DepartmentHandler) UpdateDepartment(w http.ResponseWriter, r *http.Requ
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(dept)
 }
+
+func (h *DepartmentHandler) DeleteDepartment(w http.ResponseWriter, r *http.Request) {
+	parts := strings.Split(r.URL.Path, "/")
+	id, err := strconv.Atoi(parts[2])
+	if err != nil {
+		http.Error(w, "invalid department id", http.StatusBadRequest)
+		return
+	}
+
+	mode := r.URL.Query().Get("mode")
+	if mode != "cascade" && mode != "reassign" {
+		http.Error(w, "mode must be cascade or reassign", http.StatusBadRequest)
+		return
+	}
+
+	reassignToID := 0
+	if r := r.URL.Query().Get("reassign_to_department_id"); r != "" {
+		reassignToID, err = strconv.Atoi(r)
+		if err != nil {
+			http.Error(w, "invalid reassign_to_department_id", http.StatusBadRequest)
+			return
+		}
+	}
+
+	if err := h.service.Delete(id, reassignToID, mode); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}

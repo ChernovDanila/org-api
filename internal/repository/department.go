@@ -40,3 +40,13 @@ func (r *DepartmentRepository) GetEmployees(departmentID int) ([]model.Employee,
 func (r *DepartmentRepository) Update(dept *model.Department) error {
 	return r.db.Save(dept).Error
 }
+
+func (r *DepartmentRepository) Delete(id int) error {
+	return r.db.Delete(&model.Department{}, id).Error
+}
+
+func (r *DepartmentRepository) ReassignEmployees(fromID, toID int) error {
+	return r.db.Model(&model.Employee{}).
+		Where("department_id = ?", fromID).
+		Update("department_id", toID).Error
+}
