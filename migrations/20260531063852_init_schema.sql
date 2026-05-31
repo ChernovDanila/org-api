@@ -1,10 +1,20 @@
 -- +goose Up
-CREATE TABLE department (
-    id      SERIAL PRIMARY KEY,
-    name    VARCHAR(200),
-    parentID INTEGER,
-    createdAt TIMESTAMPTZ
+CREATE TABLE departments (
+    id         SERIAL PRIMARY KEY,
+    name       VARCHAR(200) NOT NULL,
+    parent_id  INTEGER REFERENCES departments(id),
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE employees (
+    id            SERIAL PRIMARY KEY,
+    department_id INTEGER NOT NULL REFERENCES departments(id),
+    full_name     VARCHAR(200) NOT NULL,
+    position      VARCHAR(200) NOT NULL,
+    hired_at      DATE,
+    created_at    TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- +goose Down
-SELECT 'down SQL query';
+DROP TABLE employees;
+DROP TABLE departments;
