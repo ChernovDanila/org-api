@@ -36,6 +36,7 @@ func main() {
 	mux.HandleFunc("POST /departments/", deptHandler.CreateDepartment)
 	mux.HandleFunc("POST /departments/{id}/employees/", empHandler.CreateEmployee)
 	mux.HandleFunc("GET /departments/{id}", deptHandler.GetDepartment)
+	mux.HandleFunc("PATCH /departments/{id}", deptHandler.UpdateDepartment)
 
 	log.Println("Server started on :8080")
 	log.Fatal(http.ListenAndServe(":8080", mux))

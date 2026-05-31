@@ -70,3 +70,31 @@ func (h *DepartmentHandler) GetDepartment(w http.ResponseWriter, r *http.Request
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(dept)
 }
+
+func (h *DepartmentHandler) UpdateDepartment(w http.ResponseWriter, r *http.Request) {
+	parts := strings.Split(r.URL.Path, "/")
+	id, err := strconv.Atoi(parts[2])
+	if err != nil {
+		http.Error(w, "invalid department id", http.StatusBadRequest)
+		return
+	}
+
+	var req struct {
+		Name     *string `json:"name"`
+		ParentID *int    `json:"parent_id"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	dept, err := h.service.Update(id, req.Name, req.ParentID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(dept)
+}

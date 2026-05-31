@@ -37,3 +37,6 @@ func (r *DepartmentRepository) GetEmployees(departmentID int) ([]model.Employee,
 	err := r.db.Where("department_id = ?", departmentID).Order("created_at").Find(&employees).Error
 	return employees, err
 }
+func (r *DepartmentRepository) Update(dept *model.Department) error {
+	return r.db.Save(dept).Error
+}

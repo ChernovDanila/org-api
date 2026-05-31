@@ -65,3 +65,31 @@ func (s *DepartmentService) GetByID(id, depth int, includeEmployees bool) (*mode
 
 	return dept, nil
 }
+
+func (s *DepartmentService) Update(id int, name *string, parentID *int) (*model.Department, error) {
+	dept, err := s.repo.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if name != nil {
+		trimmed := strings.TrimSpace(*name)
+		if trimmed == "" {
+			return nil, errors.New("name cannot be empty")
+		}
+		dept.Name = trimmed
+	}
+
+	if parentID != nil {
+		if *parentID == id {
+			return nil, errors.New("department cannot be its own parent")
+		}
+		dept.ParentID = parentID
+	}
+
+	if err := s.repo.Update(dept); err != nil {
+		return nil, err
+	}
+
+	return dept, nil
+}
