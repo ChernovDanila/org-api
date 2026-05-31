@@ -33,3 +33,35 @@ func (s *DepartmentService) Create(name string, parentID *int) (*model.Departmen
 
 	return dept, nil
 }
+
+func (s *DepartmentService) GetByID(id, depth int, includeEmployees bool) (*model.Department, error) {
+	dept, err := s.repo.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if includeEmployees {
+		employees, err := s.repo.GetEmployees(id)
+		if err != nil {
+			return nil, err
+		}
+		dept.Employees = employees
+	}
+
+	if depth > 0 {
+		children, err := s.repo.GetChildren(id)
+		if err != nil {
+			return nil, err
+		}
+		for i := range children {
+			child, err := s.GetByID(children[i].ID, depth-1, includeEmployees)
+			if err != nil {
+				return nil, err
+			}
+			children[i] = *child
+		}
+		dept.Children = children
+	}
+
+	return dept, nil
+}
